@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create an EC2 instance and an S3 bucket using CloudFormation
+
+Resources:
+
+  MyS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub my-cfn-bucket-${AWS::Region}-${AWS::AccountId}
+      AccessControl: Private
+      Tags:
+        - Key: Purpose
+          Value: Demo
+
+  EC2InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable HTTP and ICMP access
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: icmp
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 0.0.0.0/0
+
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      ImageId: ami-0c02fb55956c7d316 # Amazon Linux 2 AMI (update per region)
+      SecurityGroups:
+        - !Ref EC2InstanceSecurityGroup
+      Tags:
+        - Key: Name
+          Value: EC2WithS3Lab
